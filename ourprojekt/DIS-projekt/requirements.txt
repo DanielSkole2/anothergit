@@ -1,0 +1,3 @@
+re
+psycopg2
+flask
