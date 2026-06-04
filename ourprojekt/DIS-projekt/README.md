@@ -2,7 +2,7 @@
 ![E/R diagram](IMG/ER_diagram.png)
 
 # Running DIS-project
- Assuming python 3 and PostgreSQL 18
+ Assuming Python 3 and PostgreSQL 18
 
  (1) Run this code to install dependencies.
  >$ pip install -r requirements.txt
