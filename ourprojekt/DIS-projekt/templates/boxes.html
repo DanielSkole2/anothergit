@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Gaming vs Studying </title> 
+    <style>
+h1{
+    font-family: "Arial", Arial, Helvetica, sans-serif;
+    font-size: 50px;
+    color: white;
+}
+
+body{
+background-image: url("{{url_for('static', filename='n.jpg' )}}");
+background-size: 100%;
+background-repeat: no-repeat;
+background-attachment: fixed;
+background-position: center; 
+
+min-height: 100vh;
+
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+body::before{ 
+    content:"";
+    position:fixed;
+    inset:0;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter:blur(15px);
+    z-index: 0;
+}
+.card{
+    position:relative;
+    z-index: 1;
+    width: 390px;
+    padding: 30px;
+    border-radius:30px;
+    background: rgba(255, 255, 255, 0.08); 
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter:blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    margin-right: 930px;
+    margin-top: -200px;
+}
+select{
+    width: 175px;
+    height: 30px;
+    font-size: 15;
+}
+
+.result-box p{
+    font-family: "Arial", Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    color: white;
+}
+</style>
+</head>
+<body>
+    <div class = "card">
+        <h1> Grade predictor </h1>
+
+        <form action="/calculate" method="POST">
+            <label style="color:white;">Gender</label>
+            <br>
+            <select name="gender" required>
+
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select><br><br>
+            
+            <label style="color:white;">Age (Range: 16-25) </label>
+            <br>
+            <input type ="number" name ="age" required><br><br>
+
+            <label style="color:white;">Studying pr.hour (Range: 1.0-10.0)</label>
+            <br>
+            <input type ="number" name="studying" min="1" max="10" step="0.1" required><br><br>
+
+            <label style="color:white;">Gaming pr.hour (Range: 1.0-10.0) </label><br>
+            <input type ="number" name ="gaming" min="1" max="10" step="0.1" required><br><br>
+
+            <label style="color:white;">Sleeping pr.hour (Range: 1.0-10.0) </label><br>
+            <input type ="number" name ="sleeping" min="1" max="10" step="0.1" required><br><br>
+
+        <button type = "submit"> Calculate </button>
+    </form>
+{% if result %}
+    <div class="result-box">
+        <hr>
+        <p>
+            <strong>Database Analysis:</strong> 
+            {{result}}
+        </p>
+
+        {% if student_count %}
+            <p>
+                <em>
+                    (Calculated based on {{ student_count }}
+                    students with a similar profile to yours)
+                </em>
+            </p>
+        {% endif %}
+    </div>
+{% endif %}
+</div>
+</body>
+</html>

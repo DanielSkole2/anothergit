@@ -23,9 +23,9 @@
 
  (5) Copy the link into your desired webbrowser.
 
- (6) Choose a gender, age and input the various hours for studying, gaming and sleeping within a max value of 10 hours for each.
+ (6) Choose a gender, age and input the various hours for studying, gaming and sleeping within a max value of 10 hours for each. 
+ (If you pick gender: other, the results will be unprecise because the sample size is too small.)
 
- (7) After all fields have been filled press the calculate button and you will receive an average grade of people with a similar profile as yourself and a Gauss distribution curve will be displayed at the bottom.
-
+ (7) After all fields have been filled press the calculate button and you will receive an average grade of people with a similar profile as yourself.
  # AI declaration
  No AI has been used
