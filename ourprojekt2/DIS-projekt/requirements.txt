@@ -1,3 +1,0 @@
-RegEx
-psycopg2
-flask
