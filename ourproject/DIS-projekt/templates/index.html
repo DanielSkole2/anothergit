@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Gaming vs Studying</title>
+
+    <style>
+        h1 {
+            font-family: "Arial", Arial, Helvetica, sans-serif;
+            font-size: 50px;
+            color: white;
+            margin-top: 0;
+        }
+
+        body {
+            background-image: url("{{ url_for('static', filename='n.jpg') }}");
+            background-size: 100%;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+        }
+
+        .card {
+            position: relative;
+            z-index: 1;
+            width: 430px;
+            padding: 30px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            color: white;
+        }
+
+        label {
+            color: white;
+        }
+
+        select {
+            width: 175px;
+            height: 30px;
+            font-size: 15px;
+        }
+
+        input {
+            width: 170px;
+            height: 25px;
+            font-size: 15px;
+        }
+
+        button {
+            padding: 8px 15px;
+            cursor: pointer;
+            border-radius: 6px;
+            border: none;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            color: white;
+        }
+
+        .chart-box {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px 0;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        #gaussChart {
+            width: 100%;
+            height: 300px;
+        }
+
+        
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h1>Grade predictor</h1>
+
+        <form action="/calculate" method="POST">
+            <label>Gender</label><br>
+            <select name="gender">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select><br><br>
+            <label style="color:white;">Age (Range: 16-25) </label><br>
+            <input type ="number" name ="age" min="16" max="25" placeholder="16-25" required><br><br>
+
+            <label style="color:white;">Studying pr.hour (Range: 0-10)</label><br>
+            <input type ="number" name="studying" min="0" max="10" step="0.1" placeholder = "0-10" required><br><br>
+
+
+            <label style="color:white;">Gaming pr.hour (Range: 0-10) </label><br>
+            <input type ="number" name ="gaming" min="0" max="10" step="0.1" placeholder="0-10" required><br><br>
+
+
+            <label style="color:white;">Sleeping pr.hour (Range: 0-10) </label><br>
+            <input type ="number" name ="sleeping" min="0" max="10" step="0.1" placeholder="0-10" required><br><br>
+
+            <button type="submit">Calculate</button>
+        </form>
+
+        {% if result %}
+            <div class="result-box">
+                <hr>
+                <p><strong>Database Analysis:</strong> {{ result }}</p>
+
+                {% if student_count %}
+                    <p><em>(Calculated based on {{ student_count }} students with a similar profile to yours)</em></p>
+                {% endif %}
+
+                {% if chart_mean %}
+                    <div class="chart-box">
+                        <canvas id="gaussChart" width="600" height="300"></canvas>
+                    </div>
+
+                    <script>
+                        function pdf(x, mu, sigma) {
+                            return Math.exp(-Math.pow(x - mu, 2) / (2 * Math.pow(sigma, 2))) / (sigma * Math.sqrt(2 * Math.PI));
+                        }
+
+                        const mu = Number("{{ chart_mean }}");
+                        const sigma = Number("{{ chart_std }}");
+
+                        const canvas = document.getElementById("gaussChart");
+                        const ctx = canvas.getContext("2d");
+
+                        const width = canvas.width;
+                        const height = canvas.height;
+
+                        const paddingLeft = 45;
+                        const paddingRight = 20;
+                        const paddingTop = 25;
+                        const paddingBottom = 45;
+
+                        const chartWidth = width - paddingLeft - paddingRight;
+                        const chartHeight = height - paddingTop - paddingBottom;
+
+                        const values = [];
+
+                        for (let i = 0; i <= 100; i++) {
+                            values.push(pdf(i, mu, sigma));
+                        }
+
+                        const maxValue = Math.max(...values);
+
+                        function xToCanvas(x) {
+                            return paddingLeft + (x / 100) * chartWidth;
+                        }
+
+                        function yToCanvas(y) {
+                            return paddingTop + chartHeight - (y / maxValue) * chartHeight;
+                        }
+
+                        ctx.clearRect(0, 0, width, height);
+
+                        ctx.fillStyle = "white";
+                        ctx.fillRect(0, 0, width, height);
+
+                        ctx.strokeStyle = "black";
+                        ctx.lineWidth = 1;
+
+                        ctx.beginPath();
+                        ctx.moveTo(paddingLeft, paddingTop);
+                        ctx.lineTo(paddingLeft, paddingTop + chartHeight);
+                        ctx.lineTo(paddingLeft + chartWidth, paddingTop + chartHeight);
+                        ctx.stroke();
+
+                        ctx.fillStyle = "black";
+                        ctx.font = "12px Arial";
+                        ctx.textAlign = "center";
+
+                        for (let i = 0; i <= 100; i += 10) {
+                            const x = xToCanvas(i);
+
+                            ctx.beginPath();
+                            ctx.moveTo(x, paddingTop + chartHeight);
+                            ctx.lineTo(x, paddingTop + chartHeight + 5);
+                            ctx.stroke();
+
+                            ctx.fillText(i, x, paddingTop + chartHeight + 20);
+                        }
+
+                        ctx.font = "14px Arial";
+                        ctx.fillText("Grade %", paddingLeft + chartWidth / 2, height - 10);
+
+                        ctx.beginPath();
+                        ctx.moveTo(xToCanvas(0), paddingTop + chartHeight);
+
+                        for (let i = 0; i <= 100; i++) {
+                            ctx.lineTo(xToCanvas(i), yToCanvas(values[i]));
+                        }
+
+                        ctx.lineTo(xToCanvas(100), paddingTop + chartHeight);
+                        ctx.closePath();
+
+                        ctx.fillStyle = "rgba(0, 0, 255, 0.1)";
+                        ctx.fill();
+
+                        ctx.beginPath();
+
+                        for (let i = 0; i <= 100; i++) {
+                            const x = xToCanvas(i);
+                            const y = yToCanvas(values[i]);
+
+                            if (i === 0) {
+                                ctx.moveTo(x, y);
+                            } else {
+                                ctx.lineTo(x, y);
+                            }
+                        }
+
+                        ctx.strokeStyle = "blue";
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+
+                        ctx.fillStyle = "black";
+                        ctx.font = "16px Arial";
+                        ctx.textAlign = "center";
+                        ctx.fillText("Grade Distribution (Gauss Curve)", width / 2, 16);
+                    </script>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
