@@ -7,7 +7,7 @@ app = Flask(__name__)
 DB_CONFIG = {
     "dbname": "postgres",
     "user": "postgres",
-    "password": "you should use actual password",
+    "password": "tests",
     "host": "localhost",
     "port": "5432"
 }
